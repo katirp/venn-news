@@ -47,7 +47,7 @@ There are no competitiors who are able to present an **unbiased, simplified, and
 - **Newspaper4k/Selenium** – For web scraping.
 - **GPT-4/Gemini** – For summarization and analysis.
 
-![image.png](attachment:76f987ab-45a5-4199-84ab-f16f75f3360d:image.png)
+<img width="660" alt="image" src="https://github.com/user-attachments/assets/aa1ad5fd-45f4-473a-b6a9-8e72345142fd" />
 
 scrape articles
 
