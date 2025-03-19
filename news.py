@@ -8,16 +8,16 @@ r.html.render(sleep=1, scrolldown=0)
 
 grouped_articles = {} # dictionary where the items are lists of dictionaries
 
-topics = r.html.find(".PO9Zff.Ccj79.kUVvS") # selects the topic block
+topics = r.html.find(".PO9Zff.Ccj79.kUVvS") # selects the topic html element
 
 for topic in topics:
     article_list = []
-    articles = topic.find("article") # selects the article blocks within the topic block
+    articles = topic.find("article") # selects the article class html blocks within the topic element
     if not articles:
         print("No articles found in topic: ", topic)
         continue
     for block in articles:
-        article = block.find(".gPFEn", first=True) # individual article element, which includes title and link
+        article = block.find(".gPFEn", first=True) # selects the individual article element which includes the title and link
         if not article: 
             print("No article found in block: ", block)
             continue
@@ -27,7 +27,7 @@ for topic in topics:
         }
         article_list.append(article_dic)
     if article_list:
-        grouped_articles[article_list[0]["title"]] = article_list
+        grouped_articles[article_list[0]["title"]] = article_list # uses the first article title as the topic
 
 print(len(grouped_articles))
 keys = list(grouped_articles.keys())
