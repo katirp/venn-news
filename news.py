@@ -1,17 +1,36 @@
-import newspaper
-import time
+from requests_html import HTMLSession
 
-site = newspaper.build('https://www.cnn.com/', memoize_articles=False,browser_user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
+session = HTMLSession()
+url = "https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFZxYUdjU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US%3Aen"
 
-print("number of articles: ", site.size())
+r = session.get(url)
+r.html.render(sleep=1, scrolldown=0)
 
-for i in range(site.size()):
-    article = site.articles[i]
-    time.sleep(2)
-    article.download()
-    article.parse()
-    print(article.title)
-    print(article.publish_date)
-    print(article.text[:100])
-    print()
+grouped_articles = {} # dictionary where the items are lists of dictionaries
 
+topics = r.html.find(".PO9Zff.Ccj79.kUVvS") # selects the topic block
+
+for topic in topics:
+    article_list = []
+    articles = topic.find("article") # selects the article blocks within the topic block
+    if not articles:
+        print("No articles found in topic: ", topic)
+        continue
+    for block in articles:
+        article = block.find(".gPFEn", first=True) # individual article element, which includes title and link
+        if not article: 
+            print("No article found in block: ", block)
+            continue
+        article_dic = {
+            "title": article.text,
+            "link": article.absolute_links
+        }
+        article_list.append(article_dic)
+    if article_list:
+        grouped_articles[article_list[0]["title"]] = article_list
+
+print(len(grouped_articles))
+keys = list(grouped_articles.keys())
+for key in keys:
+    print(key)
+print(grouped_articles[keys[0]])
