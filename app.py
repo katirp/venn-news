@@ -4,6 +4,14 @@ import time
 import csv
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request
+import newspaper
+from news_story_categorizer import categorize_news_stories
+import pandas as pd
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -75,6 +83,14 @@ def index():
 
             articles.append((source, entry, first_100_words))
 
+    print(articles[0][1].link)
+    test_article = newspaper.Article(articles[0][1].link)
+    test_article.download()
+    test_article.parse()
+    print(test_article.title)
+    print(test_article.publish_date)
+    print(test_article.text[:10000])
+    print()
     # Sort articles by published date
     articles = sorted(articles, key=lambda x: x[1].published_parsed, reverse=True)
 
@@ -112,6 +128,55 @@ def search():
     results = [article for article in articles if query.lower() in article[1].title.lower()]
 
     return render_template('search_results.html', articles=results, query=query)
+
+@app.route('/stories')
+def news_stories():
+    # Check if OpenAI should be used (default to true)
+    use_openai = request.args.get('openai', 'true').lower() == 'true'
+    
+    # Get API key from environment variable
+    api_key = os.environ.get("OPENAI_API_KEY")
+    
+    # Categorize news stories and save to CSV
+    input_file = "news_articles.csv"
+    output_file = "categorized_news_stories.csv"
+    
+    # Run the categorization
+    categorize_news_stories(input_file, output_file, use_openai=use_openai, api_key=api_key)
+    
+    # Read the categorized stories
+    categorized_df = pd.read_csv(output_file)
+    
+    # Group by story
+    story_groups = categorized_df.groupby('Story')
+    
+    # Prepare data for template
+    stories = []
+    for story_name, group in story_groups:
+        articles = []
+        num_articles = group['Number of Articles'].iloc[0]  # All rows have same count
+        
+        for _, row in group.iterrows():
+            articles.append({
+                'source': row['Source'],
+                'title': row['Title'],
+                'date': row['Published Date'],
+                'link': row['Link']
+            })
+        
+        stories.append({
+            'headline': story_name,
+            'count': num_articles,
+            'articles': articles
+        })
+    
+    # Sort stories by article count (descending)
+    stories.sort(key=lambda x: x['count'], reverse=True)
+    
+    # Flag for template to show OpenAI status
+    openai_used = "OpenAI" if use_openai and api_key else "Algorithm"
+    
+    return render_template('stories.html', stories=stories, headline_generator=openai_used)
 
 if __name__ == "__main__":
     app.run(debug=True)

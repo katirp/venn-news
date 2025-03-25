@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Top News Stories</h1>
+    <p>News stories categorized based on similarity</p>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <span class="badge {% if headline_generator == 'OpenAI' %}bg-success{% else %}bg-secondary{% endif %} me-2">
+                Headline Generator: {{ headline_generator }}
+            </span>
+        </div>
+        <div>
+            {% if headline_generator == 'OpenAI' %}
+            <a href="{{ url_for('news_stories', openai='false') }}" class="btn btn-sm btn-outline-secondary">Switch to
+                Algorithm Headlines</a>
+            {% else %}
+            <a href="{{ url_for('news_stories', openai='true') }}" class="btn btn-sm btn-outline-success">Switch to
+                OpenAI Headlines</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% for story in stories %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">{{ story.headline }}</h2>
+            <span class="badge bg-primary">{{ story.count }} articles</span>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for article in story.articles %}
+                <a href="{{ article.link }}" target="_blank" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ article.title }}</h5>
+                        <small>{{ article.source }}</small>
+                    </div>
+                    <small>{{ article.date }}</small>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
