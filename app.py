@@ -3,7 +3,7 @@ import re
 import time
 import csv
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import newspaper
 from news_story_categorizer import categorize_news_stories
 import pandas as pd
@@ -68,6 +68,11 @@ def save_to_csv(articles, filename="news_articles.csv"):
 
 @app.route('/')
 def index():
+    # Redirect the root URL to the stories page
+    return redirect(url_for('news_stories'))
+
+@app.route('/all-articles')
+def all_articles():
     articles = []
     for source, feed in RSS_FEEDS.items():
         parsed_feed = feedparser.parse(feed)
@@ -173,10 +178,7 @@ def news_stories():
     # Sort stories by article count (descending)
     stories.sort(key=lambda x: x['count'], reverse=True)
     
-    # Flag for template to show OpenAI status
-    openai_used = "OpenAI" if use_openai and api_key else "Algorithm"
-    
-    return render_template('stories.html', stories=stories, headline_generator=openai_used)
+    return render_template('stories.html', stories=stories)
 
 if __name__ == "__main__":
     app.run(debug=True)
