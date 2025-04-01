@@ -1,0 +1,19 @@
+# Python virtual environment
+venv/
+
+# Environment variables
+.env
+.env.*
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data files
+*.csv
+*.xlsx
+
+# OS specific files
+.DS_Store
+Thumbs.db

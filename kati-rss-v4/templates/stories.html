@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Top News Stories</h1>
+
+    {% for story in stories %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">{{ story.headline }}</h2>
+            <span class="badge bg-primary">{{ story.count }} articles</span>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for article in story.articles %}
+                <a href="{{ article.link }}" target="_blank" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ article.title }}</h5>
+                        <small>{{ article.source }}</small>
+                    </div>
+                    <small>{{ article.date }}</small>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
